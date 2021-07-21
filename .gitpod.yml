@@ -1,0 +1,31 @@
+tasks:
+  - name: initialize
+    init: |
+      npm install d3
+      npm install d3-sankey
+      npm install chart.js
+      pip install gsutil
+      gsutil config
+      gp sync-done gsutil
+    
+  - name: dscc install
+    init: |
+      gp sync-await gsutil
+      npx @google/dscc-gen viz
+      gp sync-done dscc
+    openMode: split-right
+  
+  - name: cd and sh
+    init: |
+      gp sync-await dscc
+      cd $(ls -at | head -n 1)
+      sh ../.github/workflows/scripts/replace.sh
+      npm run start
+    openMode: split-right
+
+# Ports to expose on workspace startup
+ports:
+  - port: 8080
+    onOpen: open-preview
+
+# Reference to https://www.gitpod.io/docs/config-gitpod-file
